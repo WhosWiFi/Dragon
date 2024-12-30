@@ -1,11 +1,16 @@
 use std::env;
 use std::fs;
-use std::io::Read;
+use std::process::Command;
+use std::process::Output;
+use regex::Regex;
 
 fn read_file(flag:&String, file_path:&String) {
     println!("The Flag Provided: {:?}", flag);
     println!("The File Path Provided: {:?}", file_path);
-    let mut file = fs::File::open(file_path).expect("Could not open file :(\n");
+    let command_output = Command::new("pwd").output().expect("Could not execute command properly");
+    println!("The Status Code is: {}", command_output.status);
+    println!("The Output of the command pwd: {}", String::from_utf8_lossy(&command_output.stdout));
+    println!("The Standard Error is: {}", String::from_utf8_lossy(&command_output.stderr));
 }
 
 fn main() {
