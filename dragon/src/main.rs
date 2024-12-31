@@ -45,15 +45,22 @@ impl Dragon {
         ui.horizontal(|ui| {
             if ui.button("Compress File").clicked() {
                 println!("Compress File Button Clicked");
-                let files = FileDialog::new()
+                let file = FileDialog::new()
                     .add_filter("All Files", &["*.*"])
                     .set_directory("/")
                     .pick_file();
+                
+                if let Some(file_path) = file {
+                    match fs::read_to_string(file_path) {
+                        Ok(contents) => println!("File Contents: {}", contents),
+                        Err(e) => println!("Error reading file: {}", e),
+                    }
+                }
             }
             ui.label("TEST");
             if ui.button("Decompress File").clicked() {
                 println!("Decompress File Button Clicked");
-                let files = FileDialog::new()
+                let file = FileDialog::new()
                     .add_filter("Dragon Files", &["dragon"])
                     .set_directory("/")
                     .pick_file();
