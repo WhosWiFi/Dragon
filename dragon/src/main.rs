@@ -3,6 +3,7 @@ use std::fs;
 use std::process::Command;
 use regex::Regex;
 use eframe::egui;
+use rfd::FileDialog;
 
 fn read_file(flag:&String, file_path:&String) {
     let command_output = Command::new("pwd").output().expect("Could not execute command properly");
@@ -40,14 +41,22 @@ impl Dragon {
         Self::default()
     }
 
-    fn ui_counter(&mut self, ui: &mut egui::Ui) {
+    fn get_file(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             if ui.button("Compress File").clicked() {
                 println!("Compress File Button Clicked");
+                let files = FileDialog::new()
+                    .add_filter("All Files", &["*.*"])
+                    .set_directory("/")
+                    .pick_file();
             }
             ui.label("TEST");
             if ui.button("Decompress File").clicked() {
                 println!("Decompress File Button Clicked");
+                let files = FileDialog::new()
+                    .add_filter("Dragon Files", &["dragon"])
+                    .set_directory("/")
+                    .pick_file();
             }
         });
     }
@@ -57,7 +66,7 @@ impl eframe::App for Dragon {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Welcome to Dragon");
-            self.ui_counter(ui);
+            self.get_file(ui);
         });
     }
 }
