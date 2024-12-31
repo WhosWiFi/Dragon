@@ -34,7 +34,54 @@ fn compress_text(data:Vec<u8>) {
             String::new()
         }
     };
-    println!("File after conversion:\n {}", file_contents_string);
+    let dictionary_common_words = vec![
+        ("the", "\x80"),
+        ("and", "\x81"),
+        ("ack", "\x82"),
+        ("ain", "\x83"),
+        ("ake", "\x84"),
+        ("ale", "\x85"),
+        ("all", "\x86"),
+        ("ame", "\x87"),
+        ("an",  "\x88"),
+        ("ank", "\x89"),
+        ("ap",  "\x8A"),
+        ("ash", "\x8B"),
+        ("at",  "\x8C"),
+        ("ate", "\x8D"),
+        ("aw",  "\x8E"),
+        ("ay",  "\x8F"),
+        ("eat", "\x90"),
+        ("ell", "\x91"),
+        ("est", "\x92"),
+        ("ice", "\x93"),
+        ("ick", "\x94"),
+        ("ide", "\x95"),
+        ("ight","\x96"),
+        ("ill", "\x97"),
+        ("in",  "\x98"),
+        ("ine", "\x99"),
+        ("ing", "\x9A"),
+        ("ink", "\x9B"),
+        ("ip",  "\x9C"),
+        ("it",  "\x9D"),
+        ("ock", "\x9E"),
+        ("op",  "\x9F"),
+        ("ore", "\xA0"),
+        ("ot",  "\xA1"),
+        ("uck", "\xA2"),
+        ("ug",  "\xA3"),
+        ("ump", "\xA4"),
+        ("unk", "\xA5")
+    ];
+
+    for (pattern, identifier) in dictionary_common_words.iter() {
+        file_contents_string = file_contents_string.replace(pattern, identifier);
+    }
+
+    let compressed_file = file_contents_string.as_bytes().to_vec();
+    println!("Dragon compressed the file from {} bytes to {} bytes", data.len(), compressed_file.len());
+    
 }
 
 fn main() {
