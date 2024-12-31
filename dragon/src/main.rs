@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 use std::process::Command;
+use std::str;
 use regex::Regex;
 use eframe::egui;
 use rfd::FileDialog;
@@ -19,6 +20,21 @@ fn read_file(flag:&String, file_path:&String) {
         "NO FILE"
     };
     println!("The file name is: {}", file_name);
+}
+
+fn compress_text(data:Vec<u8>) {
+    println!("Dragon Processed {} bytes", data.len());
+    let file_contents_string = match String::from_utf8(data) {
+        Ok(string) => {
+            println!("Conversion from utf-8 to String complete.");
+            string
+        },
+        Err(e) => {
+            println!("The Error was {}", e);
+            String::new()
+        }
+    };
+    println!("File after conversion:\n {}", file_contents_string);
 }
 
 fn main() {
@@ -46,13 +62,13 @@ impl Dragon {
             if ui.button("Compress File").clicked() {
                 println!("Compress File Button Clicked");
                 let file = FileDialog::new()
-                    .add_filter("All Files", &["*.*"])
+                    .add_filter("text files", &["txt"])
                     .set_directory("/")
                     .pick_file();
                 
                 if let Some(file_path) = file {
-                    match fs::read_to_string(file_path) {
-                        Ok(contents) => println!("File Contents: {}", contents),
+                    match fs::read(file_path) {
+                        Ok(data) => compress_text(data),
                         Err(e) => println!("Error reading file: {}", e),
                     }
                 }
