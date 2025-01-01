@@ -62,10 +62,10 @@ fn compress_text(data: Vec<u8>) {
 
     // Build Aho-Corasick automaton
     let ahocora = AhoCorasick::new(patterns).unwrap();
-    ahocora.try_replace_all(&data_as_bytes, replace_with);
+    let compressed_data = ahocora.replace_all(&data_as_bytes, replace_with);
     
-    println!("Dragon compressed the file from {} bytes to {} bytes", data_byte_size, data_as_bytes.len());
-    println!("Contents of file:\n {}", data_as_bytes);
+    println!("Dragon compressed the file from {} bytes to {} bytes", data_byte_size, compressed_data.len());
+    println!("Contents of file:\n {}", compressed_data);
     
 }
 
