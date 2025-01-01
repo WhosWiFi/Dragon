@@ -24,56 +24,71 @@ fn read_file(flag:&String, file_path:&String) {
 
 fn compress_text(data:Vec<u8>) {
     println!("Dragon Processed {} bytes", data.len());
-    let file_contents_string = match String::from_utf8(data) {
-        Ok(string) => {
-            println!("Conversion from utf-8 to String complete.");
-            string
-        },
-        Err(e) => {
-            println!("The Error was {}", e);
-            String::new()
-        }
-    };
-    let dictionary_common_words = vec![
-        ("the", "\x80"),
-        ("and", "\x81"),
-        ("ack", "\x82"),
-        ("ain", "\x83"),
-        ("ake", "\x84"),
-        ("ale", "\x85"),
-        ("all", "\x86"),
-        ("ame", "\x87"),
-        ("an",  "\x88"),
-        ("ank", "\x89"),
-        ("ap",  "\x8A"),
-        ("ash", "\x8B"),
-        ("at",  "\x8C"),
-        ("ate", "\x8D"),
-        ("aw",  "\x8E"),
-        ("ay",  "\x8F"),
-        ("eat", "\x90"),
-        ("ell", "\x91"),
-        ("est", "\x92"),
-        ("ice", "\x93"),
-        ("ick", "\x94"),
-        ("ide", "\x95"),
-        ("ight","\x96"),
-        ("ill", "\x97"),
-        ("in",  "\x98"),
-        ("ine", "\x99"),
-        ("ing", "\x9A"),
-        ("ink", "\x9B"),
-        ("ip",  "\x9C"),
-        ("it",  "\x9D"),
-        ("ock", "\x9E"),
-        ("op",  "\x9F"),
-        ("ore", "\xA0"),
-        ("ot",  "\xA1"),
-        ("uck", "\xA2"),
-        ("ug",  "\xA3"),
-        ("ump", "\xA4"),
-        ("unk", "\xA5")
+
+    let dictionary_common_words: Vec<(&str, &[u8])> = vec![
+        ("the",  &[0x01]),
+        ("and",  &[0x02]),
+        ("all",  &[0x03]),
+        ("ight", &[0x04]),
+        ("tion", &[0x05]),
+        ("ment", &[0x06]),
+        ("ness", &[0x07]),
+        ("ship", &[0x08]),
+        ("able", &[0x09]),
+        ("ance", &[0x0A]),
+        ("ence", &[0x0B]),
+        ("ture", &[0x0C]),
+        ("ward", &[0x0D]),
+        ("ing",  &[0x0E]),
+        ("ion",  &[0x0F]),
+        ("ate",  &[0x10]),
+        ("ive",  &[0x11]),
+        ("ize",  &[0x12]),
+        ("ful",  &[0x13]),
+        ("ous",  &[0x14]),
+        ("est",  &[0x15])
     ];
+
+    let mut iterator = 0;
+    while iterator < data.len() {
+        if data[i] == 't' {
+            
+        }
+    }
+
+        // Define patterns and their replacements
+    let patterns: Vec<String> = vec![
+        "the".to_string(),
+        "and".to_string(),
+        "all".to_string(),
+        "ight".to_string(),
+        "tion".to_string(),
+        // ... other patterns
+    ];
+
+    // Define replacements (single bytes)
+    let replacements: Vec<u8> = vec![
+        0x01, 0x02, 0x03, 0x04, 0x05, // ... etc
+    ];
+
+    // Build Aho-Corasick automaton
+    let ac = AhoCorasick::new(&patterns);
+    let mut compressed = Vec::with_capacity(data.len());
+    let mut last_match_end = 0;
+
+    // Find all matches
+    for mat in ac.find_iter(&data) {
+        // Copy bytes before the match
+        compressed.extend_from_slice(&data[last_match_end..mat.start()]);
+        // Add the replacement byte
+        compressed.push(replacements[mat.pattern()]);
+        last_match_end = mat.end();
+    }
+
+    // Copy remaining bytes
+    compressed.extend_from_slice(&data[last_match_end..]);
+    compressed
+
 
     for (pattern, identifier) in dictionary_common_words.iter() {
         file_contents_string = file_contents_string.replace(pattern, identifier);
