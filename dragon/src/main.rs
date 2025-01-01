@@ -5,6 +5,8 @@ use std::str;
 use regex::Regex;
 use eframe::egui;
 use rfd::FileDialog;
+use aho_corasick::AhoCorasick;
+
 
 fn read_file(flag:&String, file_path:&String) {
     let command_output = Command::new("pwd").output().expect("Could not execute command properly");
@@ -22,80 +24,48 @@ fn read_file(flag:&String, file_path:&String) {
     println!("The file name is: {}", file_name);
 }
 
-fn compress_text(data:Vec<u8>) {
+fn compress_text(data: Vec<u8>) {
     println!("Dragon Processed {} bytes", data.len());
+    let data_byte_size = data.len();
 
-    let dictionary_common_words: Vec<(&str, &[u8])> = vec![
-        ("the",  &[0x01]),
-        ("and",  &[0x02]),
-        ("all",  &[0x03]),
-        ("ight", &[0x04]),
-        ("tion", &[0x05]),
-        ("ment", &[0x06]),
-        ("ness", &[0x07]),
-        ("ship", &[0x08]),
-        ("able", &[0x09]),
-        ("ance", &[0x0A]),
-        ("ence", &[0x0B]),
-        ("ture", &[0x0C]),
-        ("ward", &[0x0D]),
-        ("ing",  &[0x0E]),
-        ("ion",  &[0x0F]),
-        ("ate",  &[0x10]),
-        ("ive",  &[0x11]),
-        ("ize",  &[0x12]),
-        ("ful",  &[0x13]),
-        ("ous",  &[0x14]),
-        ("est",  &[0x15])
+    let patterns = &[
+        "the",
+        "and",
+        "all",
+        "ight",
+        "tion",
+        "ment",
+        "ness",
+        "ship",
+        "able",
+        "ance",
+        "ence",
+        "ture",
+        "ward",
+        "ing",
+        "ion",
+        "ate",
+        "ive",
+        "ize",
+        "ful",
+        "ous",
+        "est"
     ];
 
-    let mut iterator = 0;
-    while iterator < data.len() {
-        if data[i] == 't' {
-            
-        }
-    }
-
-        // Define patterns and their replacements
-    let patterns: Vec<String> = vec![
-        "the".to_string(),
-        "and".to_string(),
-        "all".to_string(),
-        "ight".to_string(),
-        "tion".to_string(),
-        // ... other patterns
+    let replace_with = &[
+        "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", 
+        "\x09", "\x0A", "\x0B", "\x0C", "\x0D", "\x0E", "\x0F",
+        "\x10", "\x11", "\x12", "\x13", "\x14", "\x15"
     ];
 
-    // Define replacements (single bytes)
-    let replacements: Vec<u8> = vec![
-        0x01, 0x02, 0x03, 0x04, 0x05, // ... etc
-    ];
+    let data_as_bytes = String::from_utf8(data).expect("Error");
 
     // Build Aho-Corasick automaton
-    let ac = AhoCorasick::new(&patterns);
-    let mut compressed = Vec::with_capacity(data.len());
-    let mut last_match_end = 0;
-
-    // Find all matches
-    for mat in ac.find_iter(&data) {
-        // Copy bytes before the match
-        compressed.extend_from_slice(&data[last_match_end..mat.start()]);
-        // Add the replacement byte
-        compressed.push(replacements[mat.pattern()]);
-        last_match_end = mat.end();
-    }
-
-    // Copy remaining bytes
-    compressed.extend_from_slice(&data[last_match_end..]);
-    compressed
-
-
-    for (pattern, identifier) in dictionary_common_words.iter() {
-        file_contents_string = file_contents_string.replace(pattern, identifier);
-    }
-
-    let compressed_file = file_contents_string.as_bytes().to_vec();
-    println!("Dragon compressed the file from {} bytes to {} bytes", data.len(), compressed_file.len());
+    let ahocora = AhoCorasick::new(patterns).unwrap();
+    ahocora.try_replace_all(&data_as_bytes, replace_with);
+    
+    println!("Dragon compressed the file from {} bytes to {} bytes", data_byte_size, data_as_bytes.len());
+    println!("Contents of file:\n {}", data_as_bytes);
     
 }
 
@@ -131,7 +101,7 @@ impl Dragon {
                 if let Some(file_path) = file {
                     match fs::read(file_path) {
                         Ok(data) => compress_text(data),
-                        Err(e) => println!("Error reading file: {}", e),
+                        Err(e) => println!("Error reading file: {}", e)
                     }
                 }
             }
