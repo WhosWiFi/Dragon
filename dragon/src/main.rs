@@ -24,7 +24,7 @@ fn read_file(flag:&String, file_path:&String) {
     println!("The file name is: {}", file_name);
 }
 
-fn compress_text(data: Vec<u8>) {
+fn compress_text(data: Vec<u8>) -> String {
     println!("Dragon Processed {} bytes", data.len());
     let data_byte_size = data.len();
 
@@ -66,8 +66,9 @@ fn compress_text(data: Vec<u8>) {
     
     println!("Dragon compressed the file from {} bytes to {} bytes", data_byte_size, compressed_data.len());
     println!("Contents of file:\n {}", compressed_data);
-    
-    
+
+    compressed_data
+
 }
 
 fn main() {
@@ -102,13 +103,22 @@ impl Dragon {
                 if let Some(file_path) = file {
                     let data = fs::read(file_path).expect("Error occured reading the file");
                     let compressed_data = compress_text(data);
-                    let file_name = file_path.file_name();
-                    let dragon_file = file_name.concat(".dragon");
-                    let cut_file_path = file_path - file_name;
-                    let compressed_file_path = cut_file_path + dragon_file;
-                    match fs::write(path, compressed_data) {
+
+                    // Get the file name (everything after last '/')
+                    let re_filename = Regex::new(r"[^/]+$").unwrap();
+                    let file_name = re_filename.find(file_path.to_str().unwrap())
+                        .map_or("", |m| m.as_str());
+                    let dragon_file = format!("!{}.dragon", file_name);
+
+                    // Get everything up to the last '/'
+                    let re = Regex::new(r"^.*(?=/)").unwrap();
+                    let cut_file_path = re.find(file_path.to_str().unwrap())
+                        .map_or("", |m| m.as_str());
+
+                    let compressed_file_path = format!("{}/{}", cut_file_path, dragon_file);
+                    match fs::write(compressed_file_path, compressed_data) {
                         Ok(()) => println!("File was successfully created"),
-                        Err((e)) => println!("There was an error {}", e)
+                        Err(e) => println!("There was an error {}", e)
                     }
                 
                 }
