@@ -67,6 +67,7 @@ fn compress_text(data: Vec<u8>) {
     println!("Dragon compressed the file from {} bytes to {} bytes", data_byte_size, compressed_data.len());
     println!("Contents of file:\n {}", compressed_data);
     
+    
 }
 
 fn main() {
@@ -99,10 +100,17 @@ impl Dragon {
                     .pick_file();
                 
                 if let Some(file_path) = file {
-                    match fs::read(file_path) {
-                        Ok(data) => compress_text(data),
-                        Err(e) => println!("Error reading file: {}", e)
+                    let data = fs::read(file_path).expect("Error occured reading the file");
+                    let compressed_data = compress_text(data);
+                    let file_name = file_path.file_name();
+                    let dragon_file = file_name.concat(".dragon");
+                    let cut_file_path = file_path - file_name;
+                    let compressed_file_path = cut_file_path + dragon_file;
+                    match fs::write(path, compressed_data) {
+                        Ok(()) => println!("File was successfully created"),
+                        Err((e)) => println!("There was an error {}", e)
                     }
+                
                 }
             }
             ui.label("TEST");
